@@ -39,7 +39,6 @@ jobs:
             -backend-config="key=${GITHUB_HEAD_REF}/terraform.tfstate" \
             -backend-config="region=us-east-1"
 
-
       # - name: Terraform Format Check
       #   run: terraform fmt -check -recursive
 
