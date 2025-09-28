@@ -37,7 +37,7 @@ jobs:
           terraform init \
             -backend-config="bucket=terraform-backend-chinna-123" \
             -backend-config="key=${GITHUB_HEAD_REF}/terraform.tfstate" \
-            -backend-config="region=us-east-1"
+            -backend-config="region=us-east-2"
 
       # - name: Terraform Format Check
       #   run: terraform fmt -check -recursive
