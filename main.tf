@@ -17,7 +17,7 @@ module "ec2" {
   ec2_instance = {
     "Public_instance" = {
       instance_type = "t4g.nano"
-      ami_id        = "ami-026fccd88446aa0bf" 
+      ami_id        = "ami-026fccd88446aa0bf"
       subnet_id     = module.vpc.public_subnet_ids[0]
       keyname       = "terraform-practice-public-ec2"
     }
