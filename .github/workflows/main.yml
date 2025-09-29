@@ -66,16 +66,46 @@ jobs:
         with:
           path: plan_output.txt
 
-      # -----------------------
-      # APPLY
-      # -----------------------
+  # -----------------------
+  # APPLY (requires approval)
+  # -----------------------
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: github.event.inputs.action == 'apply'
+    environment:
+      name: terraform-apply   # <-- requires approval in GitHub Settings
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.3  
+
       - name: Terraform Apply
-        if: github.event.inputs.action == 'apply' && github.ref == 'refs/heads/main'
         run: terraform apply -input=false
 
-      # -----------------------
-      # DESTROY
-      # -----------------------
+  # -----------------------
+  # DESTROY (requires approval)
+  # -----------------------
+  destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: github.event.inputs.action == 'destroy'
+    environment:
+      name: terraform-destroy   # <-- requires approval in GitHub Settings
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.3  
+
       - name: Terraform Destroy
-        if: github.event.inputs.action == 'destroy'
         run: terraform destroy -input=false
