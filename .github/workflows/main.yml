@@ -5,20 +5,30 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
 
 jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
-    environment : terraform-pipeline
+    environment: terraform-pipeline
     permissions:
       contents: read
-      pull-requests: write 
+      pull-requests: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -36,17 +46,17 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=terraform-backend-chinna-123" \
-            -backend-config="key=${GITHUB_HEAD_REF}/terraform.tfstate" \
+            -backend-config="key=${GITHUB_HEAD_REF || github.ref_name}/terraform.tfstate" \
             -backend-config="region=us-east-2"
-
-      # - name: Terraform Format Check
-      #   run: terraform fmt -check -recursive
 
       - name: Terraform Validate
         run: terraform validate -no-color
 
+      # -----------------------
+      # PLAN
+      # -----------------------
       - name: Terraform Plan
-        if: github.event_name == 'pull_request'
+        if: github.event.inputs.action == 'plan' || github.event_name == 'pull_request'
         id: plan
         run: terraform plan -no-color -input=false -out=tfplan.txt | tee plan_output.txt
 
@@ -56,6 +66,16 @@ jobs:
         with:
           path: plan_output.txt
 
+      # -----------------------
+      # APPLY
+      # -----------------------
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+        if: github.event.inputs.action == 'apply' && github.ref == 'refs/heads/main'
+        run: terraform apply -input=false
+
+      # -----------------------
+      # DESTROY
+      # -----------------------
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: terraform destroy -input=false
