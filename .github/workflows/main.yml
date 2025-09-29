@@ -46,7 +46,7 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=terraform-backend-chinna-123" \
-            -backend-config="key=${GITHUB_HEAD_REF || github.ref_name}/terraform.tfstate" \
+            -backend-config="key=${GITHUB_HEAD_REF || terraform/terraform.tfstate" \
             -backend-config="region=us-east-2"
 
       - name: Terraform Validate
